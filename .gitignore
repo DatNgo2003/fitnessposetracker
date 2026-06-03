@@ -1,0 +1,20 @@
+*.env
+
+# Model weights
+Gympose_Backend/models/*.pth
+Gympose_Backend/models/*.pt
+Gympose_Backend/models/*.onnx
+Gympose_Backend/models/*.weights
+
+# Google Cloud credentials
+Gympose_Backend/config/*.json
+Gympose_Backend/config/fitness-*.json
+Gympose_Backend/config/project-*.json
+
+# Training data and datasets
+Dataset_gympose/
+dataset/
+
+# Output files
+outputs/
+*.json

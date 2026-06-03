@@ -1,0 +1,52 @@
+name: gympose
+
+services:
+  be:
+    container_name: gympose-backend
+    build:
+      context: ./Gympose_Backend
+      dockerfile: Dockerfile
+    image: gympose/backend:dev
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    env_file:
+      - Gympose_Backend/.env
+    networks:
+      - gympose_net
+    volumes:
+      - ./Gympose_Backend:/app
+      - ./Dataset_gympose:/app/dataset  # Mount dataset vào container (đổi path)
+      - ./Gympose_Backend/data:/app/data  # Mount data directory cho TTS audio
+      - ./Gympose_Backend/app/architectures/mmpose:/app/app/architectures/mmpose  # Mount entire mmpose directory
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      # === PHẦN GỘP (Kết hợp cả hai) ===
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # # === PHẦN CỦA BẠN (GIỮ LẠI SERVICE TEST) ===
+  # test:
+  #   container_name: gympose-test
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.test
+  #   volumes:
+  #     - ./Dataset_gympose:/test/data # Mount dataset từ thư mục gốc vào container test
+  #     - ./outputs:/test/outputs # Mount thư mục output
+  #   networks:
+  #     - gympose_net
+  #   depends_on:
+  #     be:
+  #       condition: service_healthy
+
+networks:
+  gympose_net:
+    driver: bridge
